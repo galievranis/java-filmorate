@@ -7,8 +7,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
@@ -18,9 +17,9 @@ public class UserController {
     private int id = 1;
 
     @GetMapping
-    public Map<Integer, User> getAll() {
+    public Set<User> getAll() {
         log.info("Количество пользователей на данный момент: {}", users.size());
-        return users;
+        return new HashSet<>(users.values());
     }
 
     @PostMapping
@@ -34,7 +33,7 @@ public class UserController {
         if (!users.containsValue(user)) {
             user.setId(id++);
             users.put(user.getId(), user);
-            log.info("Добавлен новый пользователь {}", user.getName());
+            log.info("Добавлен новый пользователь: {}", user.getName());
         }
 
         return user;
@@ -49,7 +48,7 @@ public class UserController {
         }
 
         users.put(user.getId(), user);
-        log.info("Пользователь {} обновлен", user.getLogin());
+        log.info("Пользователь '{}' обновлен", user.getLogin());
 
         return user;
     }
