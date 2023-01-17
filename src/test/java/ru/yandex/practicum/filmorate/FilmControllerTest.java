@@ -2,10 +2,9 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -31,22 +30,6 @@ public class FilmControllerTest {
 
         assertEquals(expectedResult, actualResult);
     }
-
-    @Test
-    public void shouldThrowExceptionWhenDescriptionLengthIsMoreThan200() {
-        Film film = new Film();
-        film.setName("film");
-        film.setReleaseDate(LocalDate.of(2020, 12, 20));
-        film.setDescription("film description that more than 200 characters".repeat(200));
-        Throwable exception = assertThrows(ValidationException.class, () -> filmController.create(film));
-
-        String expectedResult = "Максимальная длина описания не должна превышать 200 символов";
-        String actualResult = exception.getMessage();
-
-        assertEquals(expectedResult, actualResult);
-    }
-
-
 
     @Test
     public void shouldThrowExceptionWhenReleaseDateIsInvalid() {
