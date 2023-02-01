@@ -20,11 +20,12 @@ public class UserControllerTest {
 
     @Test
     public void shouldAddNewUser() throws ValidationException {
-        User user = new User();
-        user.setName("name");
-        user.setLogin("login");
-        user.setEmail("mail@mail.ru");
-        user.setBirthday(LocalDate.of(1953, 12, 20));
+        User user = User.builder()
+                .birthday(LocalDate.of(1953, 12, 20))
+                .email("mail@mail.ru")
+                .login("login")
+                .name("name")
+                .build();
         userController.create(user);
 
         Set<User> expectedResult = new HashSet<>();
@@ -36,10 +37,11 @@ public class UserControllerTest {
 
     @Test
     public void shouldAddNewUserWithEmptyName() throws ValidationException {
-        User user = new User();
-        user.setLogin("login");
-        user.setEmail("mail@mail.ru");
-        user.setBirthday(LocalDate.of(1953, 12, 20));
+        User user = User.builder()
+                .birthday(LocalDate.of(1953, 12, 20))
+                .email("mail@mail.ru")
+                .login("login")
+                .build();
         userController.create(user);
 
         Set<User> expectedResult = new HashSet<>();
@@ -56,9 +58,11 @@ public class UserControllerTest {
 
     @Test
     public void shouldThrowExceptionWhenInvalidBirthday() {
-        User user = new User();
-        user.setLogin("login");
-        user.setBirthday(LocalDate.now().plusDays(1));
+        User user = User.builder()
+                .birthday(LocalDate.now().plusDays(1))
+                .email("mail@mail.ru")
+                .login("login")
+                .build();
         Throwable exception = assertThrows(ValidationException.class, () -> userController.create(user));
 
         String expectedResult = "День рождения не может быть в будущем";

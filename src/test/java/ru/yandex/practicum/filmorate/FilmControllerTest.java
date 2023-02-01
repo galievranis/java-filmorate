@@ -19,9 +19,10 @@ public class FilmControllerTest {
 
     @Test
     public void shouldAddFilm() throws ValidationException {
-        Film film = new Film();
-        film.setName("film");
-        film.setReleaseDate(LocalDate.of(2020, 12, 20));
+        Film film = Film.builder()
+                .releaseDate(LocalDate.of(2020, 12, 20))
+                .name("film")
+                .build();
         filmController.create(film);
 
         Set<Film> expectedResult = new HashSet<>();
@@ -33,9 +34,10 @@ public class FilmControllerTest {
 
     @Test
     public void shouldThrowExceptionWhenReleaseDateIsInvalid() {
-        Film film = new Film();
-        film.setName("film");
-        film.setReleaseDate(LocalDate.of(1895, 12, 27));
+        Film film = Film.builder()
+                .releaseDate(LocalDate.of(1895, 12, 27))
+                .name("film")
+                .build();
         Throwable exception = assertThrows(ValidationException.class, () -> filmController.create(film));
 
         String expectedResult = "Дата релиза фильма не может быть раньше, чем 1895-12-28";

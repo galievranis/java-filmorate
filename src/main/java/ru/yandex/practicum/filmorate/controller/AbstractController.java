@@ -6,9 +6,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.StorageData;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Predicate;
 
 @RestController
 @Slf4j
