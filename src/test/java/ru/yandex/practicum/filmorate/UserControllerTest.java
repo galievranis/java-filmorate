@@ -1,11 +1,14 @@
 package ru.yandex.practicum.filmorate;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -15,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
+@RequiredArgsConstructor
 public class UserControllerTest {
 
     private final InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
@@ -45,11 +49,11 @@ public class UserControllerTest {
                 .email("mail@mail.ru")
                 .login("login")
                 .build();
-        userController.create(user);
+        inMemoryUserStorage.add(user);
 
         Set<User> expectedResult = new HashSet<>();
         expectedResult.add(user);
-        Set<User>  actualResult = userController.getAll();
+        Set<User>  actualResult = inMemoryUserStorage.getAll();
 
         assertEquals(expectedResult, actualResult);
 

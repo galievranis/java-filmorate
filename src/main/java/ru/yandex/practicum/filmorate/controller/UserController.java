@@ -15,8 +15,8 @@ import java.util.Set;
 
 @Slf4j
 @RestController
-@RequestMapping("/users")
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
     @Autowired
     UserService userService;
@@ -90,10 +90,6 @@ public class UserController {
     }
 
     public void validate(User user) throws ValidationException {
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-
         if (user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("День рождения не может быть в будущем");
         }
