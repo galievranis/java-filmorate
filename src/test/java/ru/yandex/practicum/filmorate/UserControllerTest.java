@@ -5,6 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -16,21 +17,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 public class UserControllerTest {
 
-    UserController userController = new UserController();
+    private final InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+    private final UserController userController = new UserController();
+
 
     @Test
-    public void shouldAddNewUser() throws ValidationException {
+    public void shouldAddNewUser() {
         User user = User.builder()
                 .birthday(LocalDate.of(1953, 12, 20))
                 .email("mail@mail.ru")
                 .login("login")
                 .name("name")
                 .build();
-        userController.create(user);
+        inMemoryUserStorage.add(user);
 
         Set<User> expectedResult = new HashSet<>();
         expectedResult.add(user);
-        Set<User> actualResult = userController.getAll();
+        Set<User> actualResult = inMemoryUserStorage.getAll();
 
         assertEquals(expectedResult, actualResult);
     }

@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -14,8 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
+@RequiredArgsConstructor
 public class FilmControllerTest {
-    FilmController filmController = new FilmController();
+    private final InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+    private final FilmService filmService = new FilmService();
+    private final FilmController filmController = new FilmController(filmService);
 
     @Test
     public void shouldAddFilm() throws ValidationException {
@@ -23,11 +29,11 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2020, 12, 20))
                 .name("film")
                 .build();
-        filmController.create(film);
+        inMemoryFilmStorage.add(film);
 
         Set<Film> expectedResult = new HashSet<>();
         expectedResult.add(film);
-        Set<Film> actualResult = filmController.getAll();
+        Set<Film> actualResult = inMemoryFilmStorage.getAll();
 
         assertEquals(expectedResult, actualResult);
     }
