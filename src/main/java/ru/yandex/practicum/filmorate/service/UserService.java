@@ -11,12 +11,14 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
 
     public User add(User user) {
+        log.info("Добавление пользователя с ID {}", user.getId());
         return userStorage.add(user);
     }
 
@@ -25,14 +27,17 @@ public class UserService {
             throw new NoSuchElementException("Такого пользователя не существует");
         }
 
+        log.info("Обновление пользователя с ID {}", user.getId());
         return userStorage.update(user);
     }
 
     public User delete(User user) {
+        log.info("Удаление пользователя с ID {}", user.getId());
         return userStorage.delete(user);
     }
 
     public Set<User> getAll() {
+        log.info("Получение списка всех пользователей");
         return userStorage.getAll();
     }
 
@@ -40,6 +45,7 @@ public class UserService {
         if (userStorage.getById(id) == null) {
             throw new NoSuchElementException("Пользователя с ID " + id + " не существует");
         }
+        log.info("Получение пользователя с ID {}", id);
         return userStorage.getById(id);
     }
 
@@ -54,22 +60,22 @@ public class UserService {
 
         User user = userStorage.getById(userId);
         User friend = userStorage.getById(friendId);
-
         user.getFriends().add(friend.getId());
         friend.getFriends().add(user.getId());
         userStorage.update(user);
         userStorage.update(friend);
+        log.info("Добавление пользователя с ID {} в друзья пользователя с ID {}", friendId, userId);
         return user;
     }
 
     public User deleteFriend(Long userId, Long friendId) {
         User user = userStorage.getById(userId);
         User friend = userStorage.getById(friendId);
-
         user.getFriends().remove(friend.getId());
         friend.getFriends().remove(user.getId());
         userStorage.update(user);
         userStorage.update(friend);
+        log.info("Удаление пользователя с ID {} из друзей пользователя с ID {}", friendId, userId);
         return user;
     }
 
@@ -86,6 +92,7 @@ public class UserService {
             friends.add(friend);
         }
 
+        log.info("Получение списка всех друзей пользователя с ID {}", userId);
         return friends;
     }
 
@@ -102,6 +109,7 @@ public class UserService {
                 .filter(id -> otherUser.getFriends().contains(id))
                 .forEach(id -> commonFriends.add(userStorage.getById(id)));
 
+        log.info("Получение списка общих друзей пользователей с ID {} и с ID {}", userId, otherUser);
         return commonFriends;
     }
 }
