@@ -19,7 +19,7 @@ import java.util.Set;
 @RequestMapping("/users")
 public class UserController {
     @Autowired
-    UserService userService;
+    private final UserService userService;
 
     @GetMapping
     public Set<User> getAll() {
