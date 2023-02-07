@@ -6,18 +6,16 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
 
-@Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    Long id = 1L;
-    Map<Long, Film> films = new HashMap<>();
+    private Long id = 1L;
+    private final Map<Long, Film> films = new HashMap<>();
 
     @Override
     public Film add(Film film) {
         if (!films.containsValue(film)) {
             film.setId(id++);
             films.put(film.getId(), film);
-            log.info("Добавлен новый объект в базу данных");
         }
 
         return film;
@@ -30,14 +28,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
 
         films.put(film.getId(), film);
-        log.info("Фильм с ID {} обновлен", film.getId());
         return film;
     }
 
     @Override
     public Film delete(Film film) {
         films.remove(film.getId());
-        log.info("Фильм с ID {} удален", film.getId());
         return film;
     }
 

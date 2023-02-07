@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
-@Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private Long id = 1L;
@@ -21,7 +20,6 @@ public class InMemoryUserStorage implements UserStorage {
 
             user.setId(id++);
             users.put(user.getId(), user);
-            log.info("Добавлен новый пользователь с ID {}", user.getId());
         }
 
         return user;
@@ -31,7 +29,6 @@ public class InMemoryUserStorage implements UserStorage {
     public User update(User user) {
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
-            log.info("Пользователь с ID {} обновлен", user.getId());
         }
 
         return user;
@@ -40,7 +37,6 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User delete(User user) {
         users.remove(user.getId());
-        log.info("Пользователь с ID {} удален", user.getId());
         return user;
     }
 

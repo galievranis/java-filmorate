@@ -11,21 +11,21 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
+@EqualsAndHashCode(callSuper = true)
 public class Film extends StorageData {
-    LocalDate releaseDate;
-    Set<Long> likes;
+    private LocalDate releaseDate;
+    private Set<Long> likes;
 
     @Size(min = 1, max = 200, message = "Максимальная длина описания не должна превышать 200 символов")
-    String description;
+    private String description;
 
     @NotBlank(message = "Название фильма не должно быть пустым")
-    String name;
+    private String name;
 
     @Min(value = 0, message = "Продолжительность фильма не должна быть отрициательной")
-    long duration;
+    private long duration;
 
     public Set<Long> getLikes() {
         if (likes == null) {
