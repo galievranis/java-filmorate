@@ -52,10 +52,10 @@ public class FilmService {
         return film;
     }
 
-    public Set<Film> getPopularFilms(String count) {
+    public Set<Film> getPopularFilms(Long count) {
         return filmStorage.getAll().stream()
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
-                .limit(Long.parseLong(count))
+                .limit(count)
                 .collect(Collectors.toSet());
     }
 }
