@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 @Service
@@ -18,6 +19,10 @@ public class UserService {
     }
 
     public User update(User user) {
+        if (userStorage.getById(user.getId()) == null) {
+            throw new NoSuchElementException("Такого пользователя не существует");
+        }
+
         return userStorage.update(user);
     }
 
@@ -30,10 +35,21 @@ public class UserService {
     }
 
     public User getById(Long id) {
+        if (userStorage.getById(id) == null) {
+            throw new NoSuchElementException("Пользователя с ID " + id + " не существует");
+        }
         return userStorage.getById(id);
     }
 
     public User addFriend(Long userId, Long friendId) {
+        if (userStorage.getById(userId) == null) {
+            throw new NoSuchElementException("Пользователя с ID " + userId + " не существует");
+        }
+
+        if (userStorage.getById(friendId) == null) {
+            throw new NoSuchElementException("Пользователя с ID " + friendId + " не существует");
+        }
+
         User user = userStorage.getById(userId);
         User friend = userStorage.getById(friendId);
 
@@ -56,6 +72,10 @@ public class UserService {
     }
 
     public Set<User> getFriends(Long userId) {
+        if (userStorage.getById(userId) == null) {
+            throw new NoSuchElementException("Пользователя с ID " + userId + " не существует");
+        }
+
         Set<User> friends = new HashSet<>();
         User user = userStorage.getById(userId);
 
