@@ -12,7 +12,6 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Slf4j
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
