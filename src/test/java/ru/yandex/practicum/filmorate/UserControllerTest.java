@@ -1,15 +1,18 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,12 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserControllerTest {
-
-    private final InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
-    private final UserController userController = new UserController();
-
+    @Autowired
+    private final UserController userController;
+    @Autowired
+    private final Validator validator;
 
     @Test
     public void shouldAddNewUser() {
@@ -33,11 +36,11 @@ public class UserControllerTest {
                 .login("login")
                 .name("name")
                 .build();
-        inMemoryUserStorage.add(user);
+        userController.create(user);
 
         Set<User> expectedResult = new HashSet<>();
         expectedResult.add(user);
-        Set<User> actualResult = inMemoryUserStorage.getAll();
+        Set<User> actualResult = userController.getAll();
 
         assertEquals(expectedResult, actualResult);
     }
@@ -49,13 +52,7 @@ public class UserControllerTest {
                 .email("mail@mail.ru")
                 .login("login")
                 .build();
-        inMemoryUserStorage.add(user);
-
-        Set<User> expectedResult = new HashSet<>();
-        expectedResult.add(user);
-        Set<User>  actualResult = inMemoryUserStorage.getAll();
-
-        assertEquals(expectedResult, actualResult);
+        userController.create(user);
 
         String expectedName = "login";
         String actualName = user.getName();
@@ -74,6 +71,64 @@ public class UserControllerTest {
 
         String expectedResult = "День рождения не может быть в будущем";
         String actualResult = exception.getMessage();
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void shouldNotAddUserWithNullLogin() {
+        User user = User.builder()
+                .birthday(LocalDate.of(1994, 10, 8))
+                .email("mail@mail.ru")
+                .build();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+
+        int expectedResult = 1;
+        int actualResult = violations.size();
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void shouldNotAddUserWithLoginThatContainsSpaces() {
+        User user = User.builder()
+                .login("invalid user login")
+                .birthday(LocalDate.of(1994, 10, 8))
+                .email("mail@mail.ru")
+                .build();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+
+        int expectedResult = 1;
+        int actualResult = violations.size();
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void shouldNotAddUserWithNullEmail() {
+        User user = User.builder()
+                .login("login")
+                .birthday(LocalDate.of(1994, 10, 8))
+                .build();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+
+        int expectedResult = 1;
+        int actualResult = violations.size();
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void shouldNotAddUserWithInvalidEmail() {
+        User user = User.builder()
+                .login("login")
+                .birthday(LocalDate.of(1994, 10, 8))
+                .email("mailmail.ru")
+                .build();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+
+        int expectedResult = 1;
+        int actualResult = violations.size();
 
         assertEquals(expectedResult, actualResult);
     }

@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,10 +23,6 @@ public class FilmService {
     }
 
     public Film update(Film film) {
-        if (filmStorage.getById(film.getId()) == null) {
-            throw new NoSuchElementException("Такого фильма не существует");
-        }
-
         log.info("Обновление фильма с ID {}", film.getId());
         return filmStorage.update(film);
     }

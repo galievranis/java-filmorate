@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -23,10 +22,6 @@ public class UserService {
     }
 
     public User update(User user) {
-        if (userStorage.getById(user.getId()) == null) {
-            throw new NoSuchElementException("Такого пользователя не существует");
-        }
-
         log.info("Обновление пользователя с ID {}", user.getId());
         return userStorage.update(user);
     }
@@ -42,9 +37,6 @@ public class UserService {
     }
 
     public User getById(Long id) {
-        if (userStorage.getById(id) == null) {
-            throw new NoSuchElementException("Пользователя с ID " + id + " не существует");
-        }
         log.info("Получение пользователя с ID {}", id);
         return userStorage.getById(id);
     }

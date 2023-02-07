@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -24,7 +23,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         if (!films.containsKey(film.getId())) {
-            throw new NoSuchElementException("Фильма с ID: " + film.getId() + " нет в базе данных.");
+            throw new NoSuchElementException("Фильма с ID " + film.getId() + " нет в базе данных.");
         }
 
         films.put(film.getId(), film);
@@ -45,7 +44,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film getById(Long id) {
         if (!films.containsKey(id)) {
-            throw new NoSuchElementException("Фильма с ID: " + id + " нет в базе данных");
+            throw new NoSuchElementException("Фильма с ID " + id + " нет в базе данных");
         }
 
         return films.get(id);

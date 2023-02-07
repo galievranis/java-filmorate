@@ -2,38 +2,41 @@ package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FilmControllerTest {
-    private final InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-    private final FilmService filmService = new FilmService();
-    private final FilmController filmController = new FilmController(filmService);
+    @Autowired
+    private final FilmController filmController ;
+    @Autowired
+    private final Validator validator;
 
     @Test
-    public void shouldAddFilm() throws ValidationException {
+    public void shouldAddFilm() {
         Film film = Film.builder()
-                .releaseDate(LocalDate.of(2020, 12, 20))
                 .name("film")
+                .releaseDate(LocalDate.of(2020, 12, 20))
+                .description("film description")
+                .duration(180)
                 .build();
-        inMemoryFilmStorage.add(film);
+        filmController.create(film);
 
         Set<Film> expectedResult = new HashSet<>();
         expectedResult.add(film);
-        Set<Film> actualResult = inMemoryFilmStorage.getAll();
+        Set<Film> actualResult = filmController.getAll();
 
         assertEquals(expectedResult, actualResult);
     }
@@ -41,13 +44,62 @@ public class FilmControllerTest {
     @Test
     public void shouldThrowExceptionWhenReleaseDateIsInvalid() {
         Film film = Film.builder()
-                .releaseDate(LocalDate.of(1895, 12, 27))
                 .name("film")
+                .releaseDate(LocalDate.of(1895, 12, 27))
+                .description("film description")
+                .duration(180)
                 .build();
         Throwable exception = assertThrows(ValidationException.class, () -> filmController.create(film));
 
         String expectedResult = "Дата релиза фильма не может быть раньше, чем 1895-12-28";
         String actualResult = exception.getMessage();
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void shouldNotAddFilmWhenNameIsNull() {
+        Film film = Film.builder()
+                .releaseDate(LocalDate.of(1994, 3, 30))
+                .description("film description")
+                .duration(180)
+                .build();
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+
+        int expectedResult = 1;
+        int actualResult = violations.size();
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void shouldNotAddFilmWhenDescriptionIsMoreThan200Characters() {
+        Film film = Film.builder()
+                .name("film")
+                .releaseDate(LocalDate.of(1994, 3, 30))
+                .description("description".repeat(201))
+                .duration(180)
+                .build();
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+
+        int expectedResult = 1;
+        int actualResult = violations.size();
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void shouldNotAddFilmWhenDurationIsNegative() {
+        Film film = Film.builder()
+                .name("film")
+                .releaseDate(LocalDate.of(1994, 3, 30))
+                .description("film description")
+                .duration(-180)
+                .build();
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+
+        int expectedResult = 1;
+        int actualResult = violations.size();
 
         assertEquals(expectedResult, actualResult);
     }
