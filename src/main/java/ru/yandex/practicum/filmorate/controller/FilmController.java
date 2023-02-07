@@ -17,7 +17,6 @@ import java.util.Set;
 @RequestMapping("/films")
 @RequiredArgsConstructor
 public class FilmController {
-    @Autowired
     private final FilmService filmService;
 
     @GetMapping
