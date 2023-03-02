@@ -2,7 +2,11 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -14,11 +18,13 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    @Qualifier("userDbStorage")
     private final UserStorage userStorage;
+    private JdbcTemplate jdbcTemplate;
 
-    public User add(User user) {
+    public User create(User user) {
         log.info("Добавление пользователя с ID {}", user.getId());
-        return userStorage.add(user);
+        return userStorage.create(user);
     }
 
     public User update(User user) {
@@ -42,22 +48,32 @@ public class UserService {
     }
 
     public User addFriend(Long userId, Long friendId) {
-        if (userStorage.getById(userId) == null) {
+        final String getUserSqlQuery = "SELECT * FROM users WHERE id = ?";
+        SqlRowSet userRow = jdbcTemplate.queryForRowSet(getUserSqlQuery, userId);
+        SqlRowSet friendRow = jdbcTemplate.queryForRowSet(getUserSqlQuery, friendId);
+
+        if (userRow.next()) {
             throw new NoSuchElementException("Пользователя с ID " + userId + " не существует");
         }
 
-        if (userStorage.getById(friendId) == null) {
+        if (friendRow.next()) {
             throw new NoSuchElementException("Пользователя с ID " + friendId + " не существует");
         }
 
-        User user = userStorage.getById(userId);
-        User friend = userStorage.getById(friendId);
-        user.getFriends().add(friend.getId());
-        friend.getFriends().add(user.getId());
-        userStorage.update(user);
-        userStorage.update(friend);
-        log.info("Добавление пользователя с ID {} в друзья пользователя с ID {}", friendId, userId);
-        return user;
+        final String sqlQueryForGettingFriends = "SELECT * FROM friendship WHERE first_user_id = ? AND second_user_id = ?";
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlQueryForGettingFriends, userId, friendId);
+
+        final String sqlQueryForUpdate = "UPDATE friendship SET friendship_status = ? WHERE first_user_id = ? AND second_user_id = ?";
+        final String sqlQueryForInsert = "INSERT INTO friendship (first_user_id, second_user_id, friendship_status) VALUES (?, ?, ?)";
+
+        if (userRow.first()) {
+            jdbcTemplate.update(sqlQueryForUpdate, FriendshipStatus.CONFIRMED.toString(), userId, friendId);
+        } else {
+            jdbcTemplate.update(sqlQueryForInsert, userId, friendId, FriendshipStatus.PENDING.toString());
+        }
+
+        log.info("Пользователь с ID {} добавил в друзья пользователя с ID {}", userId, friendId);
+        return userStorage.getById(userId);
     }
 
     public User deleteFriend(Long userId, Long friendId) {

@@ -13,8 +13,9 @@ import java.util.Set;
 
 @Data
 @Builder
-@EqualsAndHashCode(callSuper = true)
-public class Film extends StorageData {
+@EqualsAndHashCode
+public class Film {
+    private Long id;
     private LocalDate releaseDate;
     private Set<Long> likes;
 

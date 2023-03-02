@@ -10,12 +10,15 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
-@EqualsAndHashCode(callSuper = true)
-public class User extends StorageData {
+@EqualsAndHashCode
+public class User {
+    private Long id;
     private String name;
     private LocalDate birthday;
 
@@ -36,5 +39,14 @@ public class User extends StorageData {
         }
 
         return friendsIds;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("user_name", name);
+        values.put("user_login", login);
+        values.put("user_email", email);
+        values.put("user_birthday", birthday);
+        return values;
     }
 }

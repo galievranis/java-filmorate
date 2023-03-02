@@ -5,13 +5,13 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
 
-@Component
+@Component("memFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private Long id = 1L;
     private final Map<Long, Film> films = new HashMap<>();
 
     @Override
-    public Film add(Film film) {
+    public Film create(Film film) {
         if (!films.containsValue(film)) {
             film.setId(id++);
             films.put(film.getId(), film);
