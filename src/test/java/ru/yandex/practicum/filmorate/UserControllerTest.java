@@ -11,7 +11,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,9 +37,9 @@ public class UserControllerTest {
                 .build();
         userController.create(user);
 
-        Set<User> expectedResult = new HashSet<>();
+        List<User> expectedResult = new ArrayList<>();
         expectedResult.add(user);
-        Set<User> actualResult = userController.getAll();
+        List<User> actualResult = userController.getAll();
 
         assertEquals(expectedResult, actualResult);
     }

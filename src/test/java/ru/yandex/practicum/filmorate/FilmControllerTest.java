@@ -11,7 +11,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,9 +36,9 @@ public class FilmControllerTest {
                 .build();
         filmController.create(film);
 
-        Set<Film> expectedResult = new HashSet<>();
+        List<Film> expectedResult = new ArrayList<>();
         expectedResult.add(film);
-        Set<Film> actualResult = filmController.getAll();
+        List<Film> actualResult = filmController.getAll();
 
         assertEquals(expectedResult, actualResult);
     }

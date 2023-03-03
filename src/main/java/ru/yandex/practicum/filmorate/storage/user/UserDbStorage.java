@@ -12,10 +12,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Repository("userDbStorage")
 @RequiredArgsConstructor
@@ -24,8 +21,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User create(User user) {
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
+
         final String sqlQuery = "INSERT INTO users(user_name, user_login, user_email, user_birthday) "
-                + "values (?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -45,41 +46,54 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User update(User user) {
         final String getUserSqlQuery = "SELECT * FROM users WHERE user_id = ?";
-        SqlRowSet userRow = jdbcTemplate.queryForRowSet(getUserSqlQuery, user.getId());
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(getUserSqlQuery, user.getId());
 
-        if (!userRow.next()) {
+        if (!rowSet.next()) {
             throw new NoSuchElementException("Пользователя с ID " + user.getId() + " нет в базе данных");
         }
 
-        final String sqlQuery = "UPDATE users SET user_name = ?, user_login = ?, user_email = ?, user_birthday = ?" +
+        final String sqlQuery = "UPDATE users " +
+                "SET user_name = ?, user_login = ?, user_email = ?, user_birthday = ? " +
                 "WHERE user_id = ?";
 
-        jdbcTemplate.update(sqlQuery, user.getName(), user.getLogin(), user.getEmail(), user.getBirthday());
+        jdbcTemplate.update(sqlQuery, user.getName(),
+                user.getLogin(),
+                user.getEmail(),
+                user.getBirthday(),
+                user.getId());
         return user;
     }
 
     @Override
     public User delete(User user) {
         final String sqlQuery = "DELETE FROM users WHERE user_id = ?";
-        long userId = user.getId();
+        Long userId = user.getId();
         jdbcTemplate.update(sqlQuery, userId);
         return user;
     }
 
     @Override
-    public Set<User> getAll() {
+    public List<User> getAll() {
         final String sqlQuery = "SELECT * FROM users";
-        return new HashSet<>(jdbcTemplate.query(sqlQuery, this::mapRowToUser));
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
     }
 
     @Override
     public User getById(Long id) {
+        final String sqlQueryForChecking = "SELECT * FROM users WHERE user_id = ?";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQueryForChecking, id);
+
+        if (!rowSet.next()) {
+            throw new NoSuchElementException("Пользователя с ID " + id + " нет в базе данных");
+        }
+
         final String sqlQuery = "SELECT * FROM users WHERE user_id = ?";
         return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
     }
 
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
         return User.builder()
+                .id(rs.getLong("user_id"))
                 .name(rs.getString("user_name"))
                 .login(rs.getString("user_login"))
                 .email(rs.getString("user_email"))

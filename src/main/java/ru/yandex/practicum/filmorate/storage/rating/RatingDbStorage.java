@@ -2,38 +2,50 @@ package ru.yandex.practicum.filmorate.storage.rating;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.util.Set;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Repository("ratingDbStorage")
 @RequiredArgsConstructor
 public class RatingDbStorage implements RatingStorage {
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Rating add(Rating rating) {
-        return null;
+    public List<Mpa> getAll() {
+        final String sqlQuery = "SELECT * FROM ratings";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToRating);
     }
 
     @Override
-    public Rating update(Rating rating) {
-        return null;
+    public Mpa getById(Long id) {
+        String sqlQuery = "SELECT * FROM ratings WHERE rating_id = ?";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sqlQuery, id);
+
+        if (!rowSet.next()) {
+            throw new NoSuchElementException("Рейтинг c ID " + id + " не найден");
+        }
+
+        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToRating, id);
     }
 
-    @Override
-    public Rating delete(Rating rating) {
-        return null;
+    public Mpa getRatingByFilmId(Long filmId) {
+        final String sqlQuery = "SELECT * " +
+                "FROM ratings AS r " +
+                "JOIN movies_ratings AS mr ON r.rating_id = mr.rating_id " +
+                "WHERE mr.film_id = ?";
+        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToRating, filmId);
     }
 
-    @Override
-    public Set<Rating> getAll() {
-        return null;
-    }
-
-    @Override
-    public Rating getById(Long id) {
-        return null;
+    private Mpa mapRowToRating(ResultSet rs, int rowNum) throws SQLException {
+        return Mpa.builder()
+                .id(rs.getLong("rating_id"))
+                .name(rs.getString("rating_name"))
+                .build();
     }
 }

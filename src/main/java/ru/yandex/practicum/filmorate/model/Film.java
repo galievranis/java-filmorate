@@ -8,8 +8,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Builder
@@ -17,7 +16,8 @@ import java.util.Set;
 public class Film {
     private Long id;
     private LocalDate releaseDate;
-    private Set<Long> likes;
+    private Mpa mpa;
+    private List<Genre> genres;
 
     @Size(min = 1, max = 200, message = "Максимальная длина описания не должна превышать 200 символов")
     private String description;
@@ -27,12 +27,4 @@ public class Film {
 
     @Min(value = 0, message = "Продолжительность фильма не должна быть отрициательной")
     private long duration;
-
-    public Set<Long> getLikes() {
-        if (likes == null) {
-            likes = new HashSet<>();
-        }
-
-        return likes;
-    }
 }

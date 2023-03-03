@@ -3,23 +3,30 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.rating.RatingDbStorage;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FilmService {
+    private final JdbcTemplate jdbcTemplate;
+    private final UserService userService;
+    private final RatingDbStorage ratingDbStorage;
+    private final GenreDbStorage genreDbStorage;
 
     @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
-    @Qualifier("userDbStorage")
-    private final UserStorage userStorage;
 
     public Film create(Film film) {
         log.info("Добавление фильма с ID {}", film.getId());
@@ -36,7 +43,7 @@ public class FilmService {
         return filmStorage.delete(film);
     }
 
-    public Set<Film> getAll() {
+    public List<Film> getAll() {
         log.info("Получение списка всех фильмов");
         return filmStorage.getAll();
     }
@@ -47,26 +54,52 @@ public class FilmService {
     }
 
     public Film addLikeToFilm(Long filmId, Long userId) {
-        Film film = filmStorage.getById(filmId);
-        film.getLikes().add(userStorage.getById(userId).getId());
-        filmStorage.update(film);
-        log.info("Добавление лайка фильму с ID {} от пользователя с ID {}", filmId, userId);
-        return film;
+        validateFilm(filmId);
+        userService.validateUser(userId);
+        final String sqlQuery = "INSERT INTO likes (user_id, film_id) VALUES (?, ?)";
+        jdbcTemplate.update(sqlQuery, userId, filmId);
+        log.info("Пользователь с ID {} поставил лайк фильму с ID {}", userId, filmId);
+        return getById(filmId);
     }
 
     public Film removeLike(Long filmId, Long userId) {
-        Film film = filmStorage.getById(filmId);
-        film.getLikes().remove(userStorage.getById(userId).getId());
-        filmStorage.update(film);
-        log.info("Удаление лайка из фильма с ID {} от пользователя с ID {}", filmId, userId);
-        return film;
+        validateFilm(filmId);
+        userService.validateUser(userId);
+        final String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
+        jdbcTemplate.update(sqlQuery, filmId, userId);
+        log.info("Пользователь с ID {} удалил лайк с фильма с ID {}", userId, filmId);
+        return getById(filmId);
     }
 
-    public Set<Film> getPopularFilms(Long count) {
+    public List<Film> getPopularFilms(Long count) {
         log.info("Получение списка популярных фильмов");
-        return filmStorage.getAll().stream()
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toSet());
+        final String sqlQuery = "SELECT * " +
+                "FROM movies AS m " +
+                "LEFT JOIN likes AS l ON m.film_id = l.film_id " +
+                "GROUP BY m.film_id, l.film_id IN (SELECT film_id FROM likes) " +
+                "ORDER BY COUNT(l.user_id) DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
+    }
+
+    private void validateFilm(Long filmId) {
+        final String getFilmSqlQuery = "SELECT * FROM movies WHERE film_id = ?";
+        SqlRowSet filmRowSet = jdbcTemplate.queryForRowSet(getFilmSqlQuery, filmId);
+
+        if (!filmRowSet.next()) {
+            throw new NoSuchElementException("Фильма с ID " + filmId + " нет в базе данных");
+        }
+    }
+
+    private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
+        return Film.builder()
+                .id(rs.getLong("film_id"))
+                .name(rs.getString("film_name"))
+                .description(rs.getString("film_description"))
+                .releaseDate(rs.getDate("film_release_date").toLocalDate())
+                .duration(rs.getLong("film_duration"))
+                .mpa(ratingDbStorage.getRatingByFilmId(rs.getLong("film_id")))
+                .genres(genreDbStorage.getGenresByFilmId(rs.getLong("film_id")))
+                .build();
     }
 }

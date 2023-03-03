@@ -1,17 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.rating;
 
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.util.Set;
+import java.util.List;
 
 public interface RatingStorage {
-    Rating add(Rating rating);
-
-    Rating update(Rating rating);
-
-    Rating delete(Rating rating);
-
-    Set<Rating> getAll();
-
-    Rating getById(Long id);
+    List<Mpa> getAll();
+    Mpa getById(Long id);
 }
