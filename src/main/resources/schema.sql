@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS movies (
     film_name VARCHAR(255),
     film_description VARCHAR(200),
     film_release_date DATE,
-    film_duration INT
+    film_duration INT,
+    rating_id BIGINT
 );
 
 CREATE TABLE IF NOT EXISTS genres (
@@ -24,13 +25,13 @@ CREATE TABLE IF NOT EXISTS ratings (
     rating_name VARCHAR(50)
 );
 
-CREATE TABLE IF NOT EXISTS movies_ratings (
-    film_id BIGINT,
-    rating_id INT,
-    PRIMARY KEY (film_id, rating_id),
-    FOREIGN KEY (film_id) REFERENCES movies (film_id),
-    FOREIGN KEY (rating_id) REFERENCES ratings (rating_id)
-);
+-- CREATE TABLE IF NOT EXISTS movies_ratings (
+--     film_id BIGINT,
+--     rating_id INT,
+--     PRIMARY KEY (film_id, rating_id),
+--     FOREIGN KEY (film_id) REFERENCES movies (film_id),
+--     FOREIGN KEY (rating_id) REFERENCES ratings (rating_id)
+-- );
 
 CREATE TABLE IF NOT EXISTS users (
     user_id IDENTITY PRIMARY KEY,
