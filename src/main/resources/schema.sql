@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS movies (
-    film_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    film_id IDENTITY PRIMARY KEY,
     film_name VARCHAR(255),
     film_description VARCHAR(200),
     film_release_date DATE,
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS movies (
 );
 
 CREATE TABLE IF NOT EXISTS genres (
-    genre_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    genre_id IDENTITY PRIMARY KEY,
     genre_name VARCHAR(50)
 );
 
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS movies_genres (
 );
 
 CREATE TABLE IF NOT EXISTS ratings (
-    rating_id INT PRIMARY KEY AUTO_INCREMENT,
+    rating_id IDENTITY PRIMARY KEY,
     rating_name VARCHAR(50)
 );
 
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS movies_ratings (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-    user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id IDENTITY PRIMARY KEY,
     user_name VARCHAR(255),
     user_login VARCHAR(50),
     user_email VARCHAR(50),
