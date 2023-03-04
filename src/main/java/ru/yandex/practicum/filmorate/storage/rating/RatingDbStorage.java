@@ -34,22 +34,6 @@ public class RatingDbStorage implements RatingStorage {
         return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToRating, id);
     }
 
-//    public Mpa getRatingByFilmId(Long filmId) {
-//        final String sqlQuery = "SELECT * " +
-//                "FROM ratings AS r " +
-//                "JOIN movies_ratings AS mr ON r.rating_id = mr.rating_id " +
-//                "WHERE mr.film_id = ?";
-//        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToRating, filmId);
-//    }
-
-    public Mpa getRatingByFilmId(Long filmId) {
-        final String sqlQuery = "SELECT * " +
-                "FROM ratings AS r " +
-                "JOIN movies AS m ON r.rating_id = m.rating_id " +
-                "WHERE m.film_id = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToRating, filmId);
-    }
-
     private Mpa mapRowToRating(ResultSet rs, int rowNum) throws SQLException {
         return Mpa.builder()
                 .id(rs.getLong("rating_id"))

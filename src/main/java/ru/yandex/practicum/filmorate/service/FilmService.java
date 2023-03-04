@@ -7,12 +7,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
-import ru.yandex.practicum.filmorate.storage.rating.RatingDbStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -22,7 +23,6 @@ import java.util.NoSuchElementException;
 public class FilmService {
     private final JdbcTemplate jdbcTemplate;
     private final UserService userService;
-    private final RatingDbStorage ratingDbStorage;
     private final GenreDbStorage genreDbStorage;
 
     @Qualifier("filmDbStorage")
@@ -75,6 +75,7 @@ public class FilmService {
         log.info("Получение списка популярных фильмов");
         final String sqlQuery = "SELECT * " +
                 "FROM movies AS m " +
+                "LEFT JOIN ratings AS r ON m.rating_id = r.rating_id " +
                 "LEFT JOIN likes AS l ON m.film_id = l.film_id " +
                 "GROUP BY m.film_id, l.film_id IN (SELECT film_id FROM likes) " +
                 "ORDER BY COUNT(l.user_id) DESC " +
@@ -92,14 +93,22 @@ public class FilmService {
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
+        Long id = rs.getLong("film_id");
+        String name = rs.getString("film_name");
+        String description = rs.getString("film_description");
+        LocalDate releaseDate = rs.getDate("film_release_date").toLocalDate();
+        int duration = rs.getInt("film_duration");
+        Long ratingId = rs.getLong("rating_id");
+        String ratingName = rs.getString("rating_name");
+
         return Film.builder()
-                .id(rs.getLong("film_id"))
-                .name(rs.getString("film_name"))
-                .description(rs.getString("film_description"))
-                .releaseDate(rs.getDate("film_release_date").toLocalDate())
-                .duration(rs.getLong("film_duration"))
-                .mpa(ratingDbStorage.getRatingByFilmId(rs.getLong("film_id")))
-                .genres(genreDbStorage.getGenresByFilmId(rs.getLong("film_id")))
+                .id(id)
+                .name(name)
+                .description(description)
+                .releaseDate(releaseDate)
+                .duration(duration)
+                .mpa(new Mpa(ratingId, ratingName))
+                .genres(genreDbStorage.getGenresByFilmId(id))
                 .build();
     }
 }
