@@ -5,13 +5,13 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
-@Component
+@Component("memUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private Long id = 1L;
     private final Map<Long, User> users = new HashMap<>();
 
     @Override
-    public User add(User user) {
+    public User create(User user) {
         if (!users.containsValue(user)) {
             if (user.getName() == null || user.getName().isEmpty()) {
                 user.setName(user.getLogin());
@@ -44,8 +44,8 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Set<User> getAll() {
-        return new HashSet<>(users.values());
+    public List<User> getAll() {
+        return new ArrayList<>(users.values());
     }
 
     @Override

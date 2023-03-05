@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Set<User> getAll() {
+    public List<User> getAll() {
         return userService.getAll();
     }
 
@@ -27,20 +27,20 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public Set<User> getFriends(@PathVariable Long id) {
+    public List<User> getFriends(@PathVariable Long id) {
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<User> getCommonFriends(@PathVariable Long id,
-                                      @PathVariable Long otherId) {
+    public List<User> getCommonFriends(@PathVariable Long id,
+                                       @PathVariable Long otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) throws ValidationException {
         validate(user);
-        return userService.add(user);
+        return userService.create(user);
     }
 
     @PutMapping

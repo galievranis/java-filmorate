@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 @RestController
 @RequestMapping("/films")
@@ -17,7 +17,7 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Set<Film> getAll() {
+    public List<Film> getAll() {
         return filmService.getAll();
     }
 
@@ -27,14 +27,14 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Set<Film> getPopular(@RequestParam(name = "count", defaultValue = "10", required = false) Long count) {
+    public List<Film> getPopular(@RequestParam(name = "count", defaultValue = "10", required = false) Long count) {
         return filmService.getPopularFilms(count);
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) throws ValidationException {
         validate(film);
-        return filmService.add(film);
+        return filmService.create(film);
     }
 
     @PutMapping
