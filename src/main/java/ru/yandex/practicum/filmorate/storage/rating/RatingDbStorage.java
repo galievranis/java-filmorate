@@ -35,9 +35,12 @@ public class RatingDbStorage implements RatingStorage {
     }
 
     private Mpa mapRowToRating(ResultSet rs, int rowNum) throws SQLException {
+        Long id = rs.getLong("rating_id");
+        String name = rs.getString("rating_name");
+
         return Mpa.builder()
-                .id(rs.getLong("rating_id"))
-                .name(rs.getString("rating_name"))
+                .id(id)
+                .name(name)
                 .build();
     }
 }

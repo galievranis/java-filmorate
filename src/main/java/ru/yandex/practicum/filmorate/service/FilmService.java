@@ -7,15 +7,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import static ru.yandex.practicum.filmorate.storage.film.FilmDbStorage.getFilm;
 
 @Slf4j
 @Service
@@ -93,22 +93,6 @@ public class FilmService {
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
-        Long id = rs.getLong("film_id");
-        String name = rs.getString("film_name");
-        String description = rs.getString("film_description");
-        LocalDate releaseDate = rs.getDate("film_release_date").toLocalDate();
-        int duration = rs.getInt("film_duration");
-        Long ratingId = rs.getLong("rating_id");
-        String ratingName = rs.getString("rating_name");
-
-        return Film.builder()
-                .id(id)
-                .name(name)
-                .description(description)
-                .releaseDate(releaseDate)
-                .duration(duration)
-                .mpa(new Mpa(ratingId, ratingName))
-                .genres(genreDbStorage.getGenresByFilmId(id))
-                .build();
+        return getFilm(rs, genreDbStorage);
     }
 }

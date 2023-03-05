@@ -44,9 +44,12 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     private Genre mapRowToGenre(ResultSet rs, int rowNum) throws SQLException {
+        Long id = rs.getLong("genre_id");
+        String name = rs.getString("genre_name");
+
         return Genre.builder()
-                .id(rs.getLong("genre_id"))
-                .name(rs.getString("genre_name"))
+                .id(id)
+                .name(name)
                 .build();
     }
 }

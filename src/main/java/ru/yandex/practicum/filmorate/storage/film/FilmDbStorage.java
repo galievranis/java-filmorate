@@ -129,6 +129,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
+        return getFilm(rs, genreDbStorage);
+    }
+
+    public static Film getFilm(ResultSet rs, GenreDbStorage genreDbStorage) throws SQLException {
         Long id = rs.getLong("film_id");
         String name = rs.getString("film_name");
         String description = rs.getString("film_description");

@@ -12,6 +12,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Repository("userDbStorage")
@@ -92,12 +93,22 @@ public class UserDbStorage implements UserStorage {
     }
 
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
+        return getUser(rs);
+    }
+
+    public static User getUser(ResultSet rs) throws SQLException {
+        Long id = rs.getLong("user_id");
+        String name = rs.getString("user_name");
+        String login = rs.getString("user_login");
+        String email = rs.getString("user_email");
+        LocalDate birthday = rs.getDate("user_birthday").toLocalDate();
+
         return User.builder()
-                .id(rs.getLong("user_id"))
-                .name(rs.getString("user_name"))
-                .login(rs.getString("user_login"))
-                .email(rs.getString("user_email"))
-                .birthday(rs.getDate("user_birthday").toLocalDate())
+                .id(id)
+                .name(name)
+                .login(login)
+                .email(email)
+                .birthday(birthday)
                 .build();
     }
 }

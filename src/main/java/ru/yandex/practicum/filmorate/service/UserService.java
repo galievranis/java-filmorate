@@ -15,6 +15,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static ru.yandex.practicum.filmorate.storage.user.UserDbStorage.getUser;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -115,13 +117,7 @@ public class UserService {
     }
 
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
-        return User.builder()
-                .id(rs.getLong("user_id"))
-                .name(rs.getString("user_name"))
-                .login(rs.getString("user_login"))
-                .email(rs.getString("user_email"))
-                .birthday(rs.getDate("user_birthday").toLocalDate())
-                .build();
+        return getUser(rs);
     }
 
     void validateUser(Long userId) {
